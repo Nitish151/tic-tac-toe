@@ -3,8 +3,29 @@ import "./App.css";
 import { Board } from "./components/Board";
 import { ScoreBoard } from "./components/ScoreBoard";
 import { ResetButton } from "./components/ResetButton";
+import ReactModal from "react-modal";
+import { Header } from "./components/Header";
 
+ReactModal.setAppElement("#root");
 
+const customStyles = {
+  content: {
+    width: "50%",
+    height: "50%",
+    margin: "auto",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "Center",
+    background: "white",
+    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.5)",
+    borderRadius: "8px",
+    outline: "none",
+  },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+};
 
 function App() {
   const WIN_CONDITION = [
@@ -22,23 +43,47 @@ function App() {
   const [xPlaying, setxPlaying] = useState(true);
   const [scores, setScores] = useState({ xScore: 0, oScore: 0 });
   const [gameOver, setGameOver] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [win, setWin] = useState("");
 
-   
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
 
- 
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
   const handleClick = (boxId) => {
     const updatedBoard = board.map((value, index) => {
-      if (boxId === index) return xPlaying === true ? "X" : "O";
+      if (boxId === index) return xPlaying ? "X" : "O";
       else return value;
     });
 
     const winner = checkWinner(updatedBoard);
-    if (winner) {
+    
+    
+    if (updatedBoard.every((value) => value !== null)) {
+      console.log("It's a Tie!");
+      setxPlaying(true);
+      setWin("Tie");
+      openModal(); // Open modal for tie condition
+    }
+    
+    else if (winner) {
+      console.log("Winner detected:", winner);
+      setxPlaying(true);
+      setTimeout(function () {
+        openModal();
+      }, 500);
+
       if (winner === "O") {
+        setWin("O");
         let { oScore } = scores;
         oScore++;
         setScores({ ...scores, oScore });
       } else {
+        setWin("X");
         let { xScore } = scores;
         xScore++;
         setScores({ ...scores, xScore });
@@ -55,10 +100,11 @@ function App() {
 
       if (board[x] && board[x] === board[y] && board[y] === board[z]) {
         setGameOver(true);
-        console.log(board[x]);
+        closeModal();
         return board[x];
       }
     }
+    return "";
   };
 
   const resetBoard = () => {
@@ -68,8 +114,22 @@ function App() {
 
   return (
     <div className="App">
-     
-
+      <ReactModal
+        isOpen={modalIsOpen}
+        style={customStyles}
+        onRequestClose={closeModal}
+      >
+        <h1
+          className={win === "X" ? "x" : (win === "O" ? "o" : "tie")}
+        >
+            {win === "Tie" ? "It's a Tie" : `${win} won`}
+        </h1>
+        <ScoreBoard scores={scores} xPlaying={xPlaying} style />
+        <button className="reset-btn" onClick={closeModal}>
+          OK
+        </button>
+      </ReactModal>
+      <Header />
       <ScoreBoard scores={scores} xPlaying={xPlaying} />
       <Board board={board} onClick={gameOver ? resetBoard : handleClick} />
       <ResetButton resetBoard={resetBoard} />

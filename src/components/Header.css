@@ -1,0 +1,8 @@
+.header{
+    background: linear-gradient(to right, rgb(255, 70, 37), rgb(44, 135, 255));
+    color: white;
+    height: 6rem;
+    text-align: center;
+    padding-top: 1.3rem;
+
+}

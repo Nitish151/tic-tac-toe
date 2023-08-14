@@ -19,3 +19,7 @@ body{
   color: rgb(44, 135, 255);
   cursor: pointer;
 }
+
+.tie{
+  color: rgb(0, 110, 255);
+}
